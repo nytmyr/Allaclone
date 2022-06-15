@@ -43,6 +43,7 @@ if ($use_custom_zone_list == TRUE) {
         AND $spawn_entry_table.spawngroupID = $spawn2_table.spawngroupID
         AND $spawn2_table.zone = $zones_table.short_name
         AND LENGTH($zones_table.note) > 0
+		AND $zones_table.min_status = 0
     ";
     $result = db_mysql_query($query) or message_die('npc.php', 'MYSQL_QUERY', $query, mysqli_error());
     if (mysqli_num_rows($result) > 0) {
@@ -169,6 +170,33 @@ if ($npc["npc_spells_id"] > 0) {
 }
 
 if (($npc["loottable_id"] > 0) AND ((!in_array($npc["class"], $dbmerchants)) OR ($merchants_dont_drop_stuff == FALSE))) {
+	if ($show_npc_drop_chances_as_rarity == TRUE) {
+	$query = "
+        SELECT
+        $items_table.id,
+        $items_table.Name,
+        $items_table.itemtype,
+        CASE
+			WHEN $loot_drop_entries_table.chance BETWEEN 0 AND 5
+			THEN 'Ultra Rare'
+			WHEN $loot_drop_entries_table.chance BETWEEN 6 and 15
+			THEN 'Very Rare'
+			WHEN $loot_drop_entries_table.chance BETWEEN 16 AND 25
+			THEN 'Rare'
+			WHEN $loot_drop_entries_table.chance BETWEEN 26 and 49
+			THEN 'Uncommon'
+			WHEN $loot_drop_entries_table.chance BETWEEN 50 AND 75
+			THEN 'Common'
+			WHEN $loot_drop_entries_table.chance BETWEEN 75 AND 99
+			THEN 'Very Common'
+			WHEN $loot_drop_entries_table.chance >= 100
+			THEN 'Always'
+			END AS chance,
+        $loot_table_entries.probability,
+        $loot_table_entries.lootdrop_id,
+        $loot_table_entries.multiplier
+    ";
+	} else {
     $query = "
         SELECT
         $items_table.id,
@@ -179,7 +207,8 @@ if (($npc["loottable_id"] > 0) AND ((!in_array($npc["class"], $dbmerchants)) OR 
         $loot_table_entries.lootdrop_id,
         $loot_table_entries.multiplier
     ";
-
+	}
+	
     if ($discovered_items_only == TRUE) {
         $query .= " FROM $items_table,$loot_table_entries,$loot_drop_entries_table,$discovered_items_table";
     } else {
@@ -189,6 +218,9 @@ if (($npc["loottable_id"] > 0) AND ((!in_array($npc["class"], $dbmerchants)) OR 
     $query .= " WHERE $loot_table_entries.loottable_id=" . $npc["loottable_id"] . "
 			AND $loot_table_entries.lootdrop_id=$loot_drop_entries_table.lootdrop_id
 			AND $loot_drop_entries_table.item_id=$items_table.id";
+	if ($item_custom_loot == TRUE) {
+		$query .= " AND $loot_table_entries.lootdrop_id NOT BETWEEN 300000 AND 399999";
+	}
 
     if ($discovered_items_only == TRUE) {
         $query .= " AND $discovered_items_table.item_id=$items_table.id";
@@ -207,6 +239,14 @@ if (($npc["loottable_id"] > 0) AND ((!in_array($npc["class"], $dbmerchants)) OR 
                     $ldid = $row["lootdrop_id"];
                 }
             }
+			if ($show_npc_drop_chances_as_rarity == TRUE) {
+				if ($ldid != $row["lootdrop_id"]) {
+                    $print_buffer .= "</ol>";
+					$print_buffer .= "----------------";
+					$print_buffer .= "<ol>";
+                    $ldid = $row["lootdrop_id"];
+                }
+			}
             $print_buffer .= "<li>" . get_item_icon_from_id($row["id"]) . " <a href='?a=item&id=" . $row["id"] . "'>" . $row["Name"] . "</a>";
 			if ($dbitypes[$row["itemtype"]] != "")
 				$print_buffer .= " (" . $dbitypes[$row["itemtype"]] . ")";
@@ -215,6 +255,9 @@ if (($npc["loottable_id"] > 0) AND ((!in_array($npc["class"], $dbmerchants)) OR 
                 $print_buffer .= " - " . $row["chance"] . "%";
                 $print_buffer .= " (" . ($row["chance"] * $row["probability"] / 100) . "% Global)";
             }
+			if ($show_npc_drop_chances_as_rarity == TRUE) {
+				$print_buffer .= " - " . $row["chance"] . "";
+			}
             $print_buffer .= "</li>";
         }
 		
@@ -240,6 +283,7 @@ if ($npc["merchant_id"] > 0) {
         WHERE
             $merchant_list_table.merchantid = " . $npc["merchant_id"] . "
         AND $merchant_list_table.item = $items_table.id
+		AND $merchant_list_table.merchantid NOT BETWEEN 500000 AND 599999
         ORDER BY
             $merchant_list_table.slot
     ";
@@ -303,6 +347,9 @@ foreach ($ignore_zones AS $zid) {
     $query .= " AND $zones_table.short_name!='$zid'";
 }
 $query .= "AND $zones_table.min_status = '0'";
+if ($group_npcs_by_zone == TRUE) {
+        $query .= " GROUP BY $zones_table.long_name";
+}
 $query .= " ORDER BY $zones_table.long_name,$spawn_group_table.`name`";
 $result = db_mysql_query($query) or message_die('npc.php', 'MYSQL_QUERY', $query, mysqli_error());
 if (mysqli_num_rows($result) > 0) {

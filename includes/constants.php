@@ -31,6 +31,8 @@ $zones_table = "zone";
 $discovered_items_table = "discovered_items";
 $spell_globals_table = "spell_globals";
 $spells_table = "spells_new";
+$data_buckets_table = "data_buckets";
+$leaderboard_table = "char_leaderboard_data";
 
 // added tables, source the needed file from the includes/sql directory
 $tbspawnarea = "spawnarea"; // Tool Specific Table
@@ -861,6 +863,19 @@ $dbspelltypes = [
     64 => "Lifetap",
     128 => "Snare",
     256 => "Dot",
+	512 => "Dispel",
+	1024 => "In-Combat Buff",
+	2048 => "Mez",
+	4096 => "Charm",
+	8192 => "Slow",
+	16384 => "Debuff",
+	32678 => "Cure",
+	65536 => "Rez",
+	131072 => "Hate Redux",
+	262144 => "In-Combat Buff Song",
+	524288 => "Out-of-Combat Buff Song",
+	1048576 => "Pre-Combat Buff",
+	2097152 => "Pre-Combat Buff Song"
 ];
 
 $dbspellresists = [
@@ -2091,11 +2106,11 @@ $expansion_zones = array(
     3 => "Scars of Velious",
     4 => "Shadows of Luclin",
     5 => "Planes of Power",
-    6 => "Legacy of Ykesha",
+    /*6 => "Legacy of Ykesha",
     7 => "Lost Dungeons of Norrath",
     8 => "Gates of Discord",
     9 => "Omens of War",
-    /*10 => "Dragons of Norrath",
+    10 => "Dragons of Norrath",
     11 => "Depths of Darkhollow",
     12 => "Prophecy of Ro",
     13 => "The Serpent's Spine",

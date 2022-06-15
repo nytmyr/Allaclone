@@ -10,6 +10,7 @@ $opt = (isset($_GET['opt']) ? $_GET['opt'] : '');
 $namestring = (isset($_GET['name']) ? $_GET['name'] : '');
 $level = (isset($_GET['level']) ? $_GET['level'] : 0);
 $type = (isset($_GET['type']) ? $_GET['type'] : 0);
+#$DBSpellType = (isset($_GET['spell type']) ? $_GET['spell type'] : 0);
 
 $check1 = "";
 $check2 = "";
@@ -132,16 +133,19 @@ if (($type != 0 && $level != 0) || $namestring != '') {
             $print_buffer .= '<tr>
 					<td class="menuh" colspan=2>Name</td>
 					<td class="menuh">Class</td>
+					<td class="menuh">Level</td>
 					<td class="menuh">Effect(s)</td>
 					<td class="menuh">Mana</td>
 					<td class="menuh">Skill</td>
+					<td class="menuh">Spell Type</td>
 					<td class="menuh">Target Type</td>
 				  </tr>';
         }
         $print_buffer .= '<tr class="' . $RowClass . '">
 					<td valign="top"><a href="?a=spell&id=' . $row['id'] . '"><img src="' . $icons_url . $row['new_icon'] . '.gif" align="center" border="1"></a></td>
 					<td valign="top"><a href="?a=spell&id=' . $row['id'] . '">' . $row['name'] . '</a></td>
-					<td valign="top">' . $ClassName . " " . $LevelCheck . '</td>
+					<td valign="top">' . $ClassName . '</td>
+					<td valign="top">' . $LevelCheck . '</td>
 					<td valign="top"><small>';
         for ($n = 1; $n <= 12; $n++) {
             SpellDescription($row, $n);

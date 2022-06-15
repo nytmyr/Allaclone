@@ -10,7 +10,7 @@ $isearch = (isset($_GET['isearch']) ? $_GET['isearch'] : '');
 $iname = (isset($_GET['iname']) ? $_GET['iname'] : '');
 
 if (count($_GET) > 2) {
-    $query = "SELECT id, icon, `name`, itemtype, ac, hp, mana, damage, delay FROM $items_table WHERE ";    
+    $query = "SELECT id, icon, `name`, itemtype, ac, hp, mana, damage, delay FROM $items_table WHERE id < 600000 AND ";    
     if ($iname != "") {
         $name = addslashes(str_replace("_", "%", str_replace(" ", "%", $iname)));
         $query .= " `name` LIKE '%" . $name . "%'";

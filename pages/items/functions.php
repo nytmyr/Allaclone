@@ -15,16 +15,18 @@ function return_where_item_dropped_count($item_id){
         $loot_table_entries,
         $loot_drop_entries_table,
         $spawn_entry_table,
+		$item_custom_loot,
         $merchants_dont_drop_stuff,
         $item_add_chance_to_drop,
+		$item_add_chance_to_drop_as_rarity,
         $ignore_zones;
 
-    $is_item_dropped = get_field_result("item_id", "SELECT item_id FROM $loot_drop_entries_table WHERE item_id=$item_id LIMIT 1");
+    $is_item_dropped = get_field_result("item_id", "SELECT item_id FROM $loot_drop_entries_table WHERE item_id=$item_id AND $item_id < 600000 LIMIT 1");
 
     $return_buffer = "";
     if($is_item_dropped) {
         $return_buffer .= "<tr>";
-        $return_buffer .= "<td><h2 class='section_header'>Item Drops</h2>";
+        $return_buffer .= "<td><h2 class='section_header'>Dropped From</h2>";
         $return_buffer .= "</tr>";
         $return_buffer .= "<tr id='npc_dropped_view'>";
         $return_buffer .= "<td><ul><li><a onclick='npc_dropped_view(" . $item_id . ")'>Click to View</a></li></ul></td>";
@@ -45,14 +47,58 @@ function return_where_item_dropped($item_id, $via_ajax = 0)
             $loot_table_entries,
             $loot_drop_entries_table,
             $spawn_entry_table,
+			$item_custom_loot,
             $merchants_dont_drop_stuff,
             $item_add_chance_to_drop,
+			$item_add_chance_to_drop_as_rarity,
             $ignore_zones;
 
-    $is_item_dropped = get_field_result("item_id", "SELECT item_id FROM $loot_drop_entries_table WHERE item_id=$item_id LIMIT 1");
+    $is_item_dropped = get_field_result("item_id", "SELECT item_id FROM $loot_drop_entries_table WHERE item_id=$item_id AND $item_id < 600000 LIMIT 1");
 
     if($is_item_dropped) {
-
+		if ($item_add_chance_to_drop_as_rarity == TRUE) {
+		$query = "
+            SELECT
+                DISTINCT $npc_types_table.id,
+                $npc_types_table.`name`,
+                $spawn2_table.zone,
+                $zones_table.long_name,
+                $loot_table_entries.multiplier,
+                $loot_table_entries.probability,
+                CASE
+					WHEN $loot_drop_entries_table.chance BETWEEN 0 AND 5
+					THEN 'Ultra Rare'
+					WHEN $loot_drop_entries_table.chance BETWEEN 6 and 15
+					THEN 'Very Rare'
+					WHEN $loot_drop_entries_table.chance BETWEEN 16 AND 25
+					THEN 'Rare'
+					WHEN $loot_drop_entries_table.chance BETWEEN 26 and 49
+					THEN 'Uncommon'
+					WHEN $loot_drop_entries_table.chance BETWEEN 50 AND 75
+					THEN 'Common'
+					WHEN $loot_drop_entries_table.chance BETWEEN 75 AND 99
+					THEN 'Very Common'
+					WHEN $loot_drop_entries_table.chance >= 100
+					THEN 'Always'
+					END AS chance
+            FROM
+                $npc_types_table,
+                $spawn2_table,
+                $spawn_entry_table,
+                $loot_table_entries,
+                $loot_drop_entries_table,
+                $zones_table
+            WHERE
+                $npc_types_table.id = $spawn_entry_table.npcID
+            AND $spawn_entry_table.spawngroupID = $spawn2_table.spawngroupID
+            AND $npc_types_table.loottable_id = $loot_table_entries.loottable_id
+            AND $loot_table_entries.lootdrop_id = $loot_drop_entries_table.lootdrop_id
+            AND $loot_drop_entries_table.item_id = $item_id
+			AND $item_id < 600000
+            AND $zones_table.short_name = $spawn2_table.zone
+			AND $zones_table.min_status = 0
+			";	
+		} else {
         $query = "
             SELECT
                 DISTINCT $npc_types_table.id,
@@ -75,8 +121,16 @@ function return_where_item_dropped($item_id, $via_ajax = 0)
             AND $npc_types_table.loottable_id = $loot_table_entries.loottable_id
             AND $loot_table_entries.lootdrop_id = $loot_drop_entries_table.lootdrop_id
             AND $loot_drop_entries_table.item_id = $item_id
+			AND $item_id < 600000
             AND $zones_table.short_name = $spawn2_table.zone
-    ";
+			AND $zones_table.min_status = 0
+			";
+		}
+			
+		if ($item_custom_loot == TRUE) {
+			$query .= " AND $loot_table_entries.lootdrop_id NOT BETWEEN 300000 AND 399999";
+		}
+    
         if ($merchants_dont_drop_stuff == TRUE) {
             $query .= " AND $npc_types_table.merchant_id=0";
         }
@@ -116,6 +170,9 @@ function return_where_item_dropped($item_id, $via_ajax = 0)
 					if ($item_add_chance_to_drop) {
 						$return_buffer .= " has a " . ($row["chance"] * $row["probability"] / 100) . "% probability to drop this item at a multiplier of  " . $row["multiplier"] . ".";
 					}
+					if ($item_add_chance_to_drop_as_rarity) {
+						$return_buffer .= " - " . ($row["chance"]);
+					}
                 $return_buffer .= "</li>";
             }
             $return_buffer .= "</ul>";
@@ -140,7 +197,7 @@ function return_where_item_sold_count($item_id){
         $spawn_entry_table,
         $item;
 
-    $is_item_sold = get_field_result("item", "SELECT item FROM $merchant_list_table  WHERE item=$item_id LIMIT 1");
+    $is_item_sold = get_field_result("item", "SELECT item FROM $merchant_list_table  WHERE item=$item_id AND $item_id < 600000 LIMIT 1");
 
     $return_buffer = "";
     if($is_item_sold) {
@@ -167,7 +224,7 @@ function return_where_item_sold($item_id, $via_ajax = 0){
 
     $is_item_sold_anywhere = get_field_result(
         "item",
-        "SELECT item FROM $merchant_list_table WHERE item=$item_id LIMIT 1");
+        "SELECT item FROM $merchant_list_table WHERE item=$item_id AND $item_id < 600000 LIMIT 1");
 
     if ($is_item_sold_anywhere) {
         // npcs selling this (Very Heavy Query)
@@ -189,7 +246,9 @@ function return_where_item_sold($item_id, $via_ajax = 0){
             AND $npc_types_table.id = $spawn_entry_table.npcID
             AND $spawn_entry_table.spawngroupID = $spawn2_table.spawngroupID
             AND $merchant_list_table.merchantid = $npc_types_table.merchant_id
+			AND $merchant_list_table.merchantid NOT BETWEEN 500000 AND 599999
             AND $zones_table.short_name = $spawn2_table.zone
+			AND $zones_table.min_status = 0
         ";
 
         $result = db_mysql_query($query);
@@ -242,6 +301,7 @@ function return_where_item_ground_spawn($item_id){
 
     global
             $ground_spawns_table,
+			$ground_spawn_hide_coords,
             $zones_table;
 
     $query = "
@@ -255,6 +315,7 @@ function return_where_item_ground_spawn($item_id){
         WHERE
             item = $item_id
         AND $ground_spawns_table.zoneid = $zones_table.zoneidnumber
+		AND $zones_table.min_status = 0
     ";
 
     $return_buffer = "";
@@ -271,11 +332,17 @@ function return_where_item_ground_spawn($item_id){
                 if ($current_zone_iteration != "") {
                     $return_buffer .= "</ul>";
                 }
-                $return_buffer .= "<b><a href='?a=zone&name=" . $row["short_name"] . "'>" . $row["long_name"] . "</a> at: </b>";
-                $return_buffer .= "<ul>";
-                $current_zone_iteration = $row["short_name"];
-            }
-            $return_buffer .= "<li>" . $row["max_x"] . " (X), " . $row["max_y"] . " (Y), " . $row["max_z"] . " (Z)</a></li>";
+				if ($ground_spawn_hide_coords) {
+					$return_buffer .= "<b><a href='?a=zone&name=" . $row["short_name"] . "'>" . $row["long_name"] . "</a></b>";
+					$return_buffer .= "<ul>";
+					$current_zone_iteration = $row["short_name"];
+				} else {
+					$return_buffer .= "<b><a href='?a=zone&name=" . $row["short_name"] . "'>" . $row["long_name"] . "</a> at: </b>";
+					$return_buffer .= "<ul>";
+					$current_zone_iteration = $row["short_name"];
+					$return_buffer .= "<li>" . $row["max_x"] . " (X), " . $row["max_y"] . " (Y), " . $row["max_z"] . " (Z)</a></li>";
+				}
+			}
         }
         $return_buffer .= "</ul>";
         $return_buffer .= "</td>";
@@ -302,6 +369,7 @@ function return_where_item_foraged($item_id){
         WHERE
             $zones_table.zoneidnumber = $forage_table.zoneid
         AND $forage_table.itemid = $item_id
+		AND $zones_table.min_status = 0
         GROUP BY
             $zones_table.zoneidnumber
     ";

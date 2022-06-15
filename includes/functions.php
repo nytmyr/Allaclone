@@ -978,8 +978,12 @@ function return_item_stat_box($item, $show_name_icon) {
 			$html_string .= "<tr><td width='0%' nowrap='1'><b>Tradeskill Container: </b>$bag_type</td></tr>";
 		}
 			
-		if ($item["bagwr"]) {
+		if ($item["bagwr"] && $item["bagtype"] != 2) {
 			$html_string .= "<tr><td width='0%'  nowrap='1'><b>Weight Reduction: </b>" . $item["bagwr"] . "%</td></tr>";
+		}
+		if ($item["bagwr"] && $item["bagtype"] == 2) {
+			$html_string .= "<tr><td width='0%'  nowrap='1'><b>Weight Reduction: </b>" . $item["bagwr"] . "%</td></tr>";
+			$html_string .= "<tr><td width='0%'  nowrap='1'><b>Haste: ~</b>" . number_format($item["bagwr"] / 3.39) . "%</td></tr>";
 		}
 		
 		$html_string .= "<tr><td width='0%' nowrap='1' colspan='2'>This can hold <b><font color = '#22EE22'>" . get_size_string($item["bagsize"]) . "</font></b> and smaller items.</td></tr>";
@@ -1132,8 +1136,10 @@ function return_item_stat_box($item, $show_name_icon) {
 				"name",
 				"SELECT name FROM $spells_table WHERE id=" . $item["worneffect"]
 			) . "</a>";
-		if ($item["wornlevel"] > 0)
+		if ($item["wornlevel"] > 0 && $item["worneffect"] != 998)
 			$html_string .= "<br><b>Level for effect: </b>" . $item["wornlevel"];
+		if ($item["wornlevel"] > 0 && $item["worneffect"] == 998)
+			$html_string .= "<br>" . $item["wornlevel"] . "<b>% Haste</b>";
 		
 		$html_string .= "</td></tr>";
 	}
@@ -1164,7 +1170,22 @@ function return_item_stat_box($item, $show_name_icon) {
 		$html_string .= ")";
 		if ($item["clicklevel"] > 0)
 			$html_string .= "<br/><b>Level for effect: </b>" . $item["clicklevel"];
-		
+		$spellname = get_field_result("name",
+			"SELECT name
+				FROM $spells_table
+					WHERE id=" . $item["clickeffect"]
+					)
+					;
+		if ($spellname == "Summon Horse") {
+			$query  = "SELECT h.`mountspeed`
+						FROM horses h
+						INNER JOIN $spells_table s ON s.`teleport_zone` = h.`filename`
+						WHERE s.`id` = " . $item["clickeffect"];
+			$result = db_mysql_query($query);
+			while ($row = mysqli_fetch_array($result)) {
+				$html_string .= "<br/><b>Run Speed: </b>" . ($row["mountspeed"]*100) . "%<br/>";
+			}
+		}
 		if ($item["maxcharges"] > 0)
 			$html_string .= "<br/><b>Charges: </b>" . $item["maxcharges"];
 		elseif ($item["maxcharges"] < 0)
@@ -1344,12 +1365,12 @@ function get_zone_long_name($zone_short_name) {
 
 function get_zones_by_expansion($expansion) {
 	global $zones_table;
-	$query = "SELECT `long_name`, `short_name` FROM $zones_table WHERE `expansion` = '$expansion' AND `min_status` = '0'";
+	$query = "SELECT `long_name`, `short_name`, `zone_exp_multiplier` FROM $zones_table WHERE `expansion` = '$expansion' AND `min_status` = '0' ORDER BY `long_name`";
 	$result = db_mysql_query($query);
 	$message = "";
 	if (mysqli_num_rows($result) > 0) {
 		while ($row = mysqli_fetch_array($result)) {
-			$message .= "<li><a href = '?a=zone&name=" . $row["short_name"] . "'>" . $row["long_name"] . "</a></li>";
+			$message .= "<li><a href = '?a=zone&name=" . $row["short_name"] . "'>" . $row["long_name"] . "</a> | ZEM: " . $row["zone_exp_multiplier"]*100 . "%</li>";
 		}
 	}
 	return $message;	

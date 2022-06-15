@@ -77,10 +77,11 @@
                                             <tr>
                                                 <td class="menuh" nowrap="1">Main...</td>
                                             </tr>
-                                            <tr>
+                                           <tr>
                                                 <td  class="menu_item">
-                                                    <li><a href="/Wiki">Home</a></li>
-													<li><a href="/Magelo">Magelo</a></li>
+												<li><a href="/Allaclone/">Home Page</></li>
+                                                   <!-- <li><a href="/Wiki">Home</a></li>-->
+													<li><a href="/charbrowser">CharBrowser</a></li>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -89,6 +90,7 @@
                                             <tr>
                                                 <td  class="menu_item">
                                                     <li><a href="?a=items">Item Search</a> </li>
+                                                    <li><a href="?a=sharditems">Shard Vendored Items</a> </li>
                                                 </td>
                                             </tr>
                                             <tr>
@@ -105,22 +107,27 @@
                                             <tr>
                                                 <td  class="menu_item">
                                                     <li><a href="?a=npcs">NPC Search</a></li>
+													<li><a href="?a=pets">Pets</a>
+													<!--<li><a href="?a=advanced_npcs">Advanced NPC Search</a></li>-->
+													<!--<li><a href="?a=global_search">Global Search</a></li>-->
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td  class="menu_item">
-                                                    <li><a href="?a=pets">Pets</a>
-                                                    </li>
-                                                </td>
-                                            </tr>
-                                            <tr>
+											<tr>
+												<td class="menuh" nowrap="1">Factions...</td>
+											</tr>
+											<tr>
+												<td class="menu_item">
+													<li><a href="?a=factions">Factions</a></li>
+												</td>
+											</tr>
+                                            <!--<tr>
                                                 <td class="menuh" nowrap="1">Tasks...</td>
                                             </tr>
                                             <tr>
                                                 <td  class="menu_item">
                                                     <li><a href="?a=tasks">Task Search</a></li>
                                                 </td>
-                                            </tr>
+                                            </tr>-->
                                             <tr>
                                                 <td class="menuh" nowrap="1">Tradeskills...</td>
                                             </tr>
@@ -128,13 +135,36 @@
                                                 <td  class="menu_item">
                                                     <li><a href="?a=recipes">Recipe Search</a></li>
                                                 </td>
-                                            </tr><tr>
+                                            </tr>
+											<tr>
                                                 <td class="menuh" nowrap="1">Zones...</td>
                                             </tr>
                                             <tr>
                                                 <td  class="menu_item">
                                                     <li><a href="?a=zone_expansions">Zones by Expansion</a></li>
+													<li><a href="?a=zones_by_level">Zones by Level</a></li>
                                                     <li><a href="?a=zones">Populated Zones</a> </li>
+													<li><a href="?a=zones_hotzones">Hot Zones</a> </li>
+                                                </td>
+                                            </tr>
+											<tr>
+                                                <td class="menuh" nowrap="1">Achievements...</td>
+                                            </tr>
+                                            <tr>
+                                                <td  class="menu_item">
+                                                    <li><a href="?a=achiev_kills">First Kills</a></li>
+                                                    <li><a href="?a=achiev_items">Item Firsts</a> </li>
+													<li><a href="?a=achiev_leveling">Leveling Firsts</a> </li>
+													<li><a href="?a=achiev_misc">Misc</a> </li>
+                                                </td>
+                                            </tr>
+											<tr>
+                                                <td class="menuh" nowrap="1">Leaderboards...</td>
+                                            </tr>
+                                            <tr>
+                                                <td  class="menu_item">
+                                                    <li><a href="?a=leaderboard">Overall Leaderboard Rankings</a></li>
+													<li><a href="?a=leaderboard_byclass">Class Leaderboard Rankings</a></li>
                                                 </td>
                                             </tr>
                                             </tbody>

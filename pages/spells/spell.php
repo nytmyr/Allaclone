@@ -67,6 +67,9 @@ if ($spell["mana"] > 0)
 if ($spell["skill"] < 52)
 	$print_buffer .= "<tr><td><b>Skill</b></td><td>" . $dbskills[$spell["skill"]] . "</td></tr>";
 
+#if ($spell["spell type"] < 2097152)
+#	$print_buffer .= "<tr><td><b>Spell Type</b></td><td>" . $dbspelltypes[$spell["spell type"]] . "</td></td>";
+
 if ($spell["cast_time"] > 0)
 	$print_buffer .= "<tr><td><b>Cast</b></td><td>" . ($spell["cast_time"] / 1000) . " Second(s)</td></tr>";
 else 
